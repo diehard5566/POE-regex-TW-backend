@@ -8,10 +8,6 @@
     ],
     "routes": [
       {
-        "src": "/maps",
-        "dest": "/api/v1/maps"
-      },
-      {
         "src": "/(.*)",
         "dest": "/api/v1/$1"
       },
