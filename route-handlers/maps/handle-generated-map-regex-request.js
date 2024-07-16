@@ -3,7 +3,7 @@ const { generateMapRegex } = require('../../services/maps');
 module.exports = async (req, res) => {
 	const {
 		wantedMods, unwantedMods, itemQuantity,
-		packSize,
+		packSize, allGoodMods,
 	} = req.body;
 
 	try {
@@ -12,6 +12,7 @@ module.exports = async (req, res) => {
 			unwantedMods,
 			itemQuantity,
 			packSize,
+			allGoodMods,
 		});
 
 		res.status(201).json({ regex });

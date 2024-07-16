@@ -13,15 +13,16 @@ async function generateMapRegex({
 	unwantedMods,
 	itemQuantity,
 	packSize,
+	allGoodMods,
 }) {
 	const exclusions = generateBadMods(unwantedMods);
-	const inclusions = generateGoodMods(wantedMods);
+	const inclusions = generateGoodMods(wantedMods, allGoodMods);
 	const quantity = itemQuantity ? addQuantOrPack('品數 .*', generateNumberRegex(itemQuantity.toString())) : '';
 	const pack = packSize ? addQuantOrPack('群大小.*', generateNumberRegex(packSize.toString())) : '';
 
 	const result = `${exclusions} ${inclusions} ${quantity} ${pack}`.trim().replace(/\s{2,}/g, ' ');
 
-	return result;
+	return optimize(result);
 }
 
 // 處理不想要的詞綴
@@ -55,7 +56,7 @@ function generateBadMods(unwantedMods) {
 }
 
 // 處理想要的詞綴
-function generateGoodMods(wantedMods) {
+function generateGoodMods(wantedMods, allGoodMods) {
 	if (wantedMods.length === 0) {
 		return '';
 	}
@@ -81,6 +82,14 @@ function generateGoodMods(wantedMods) {
 		return '';
 	}
 
+	regex = [...new Set(regex)];
+
+	if (allGoodMods) {
+		return regex
+			.map(matchSafe => matchSafe.includes(' ') ? `"${matchSafe}"` : matchSafe)
+			.join(' ');
+	}
+
 	return `"${regex.join('|')}"`;
 }
 
@@ -92,13 +101,27 @@ function addQuantOrPack(prefix, string) {
 	return `"${prefix}${string}%"`;
 }
 
-function generateNumberRegex(number, { optimize } = {}) {
+function optimize(string) {
+	return string
+		.replace(/\[8-9\]/g, '[89]')
+		.replace(/\[9-9\]/g, '9');
+}
+
+/**
+ * 生成一個匹配特定數字範圍的正則表達式
+ * @param {string} number - 輸入的數字字符串
+ * @param {Object} options - 配置選項
+ * @param {boolean} [options.optimize=true] - 是否優化（將數字向下取整到最近的 10）
+ * @returns {string} 生成的正則表達式字符串
+ */
+function generateNumberRegex(number, { optimize = true } = {}) {
 	const numbers = number.match(/\d/g);
 
 	if (numbers === null) {
 		return '';
 	}
 
+	// 轉換為數字，如果 optimize 為 true，則向下取整到最近的 10
 	const quant = optimize
 		? Math.floor((Number(numbers.join('')) / 10)) * 10
 		: Number(numbers.join(''));
