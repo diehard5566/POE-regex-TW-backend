@@ -17,7 +17,7 @@ async function generateMapRegex({
 }) {
 	const exclusions = generateBadMods(unwantedMods);
 	const inclusions = generateGoodMods(wantedMods, allGoodMods);
-	const quantity = itemQuantity ? addQuantOrPack('品數 .*', generateNumberRegex(itemQuantity.toString())) : '';
+	const quantity = itemQuantity ? addQuantOrPack('品數.*', generateNumberRegex(itemQuantity.toString())) : '';
 	const pack = packSize ? addQuantOrPack('群大小.*', generateNumberRegex(packSize.toString())) : '';
 
 	const result = `${exclusions} ${inclusions} ${quantity} ${pack}`.trim().replace(/\s{2,}/g, ' ');
