@@ -23,14 +23,19 @@ app.use((req, res, next) => {
 });
 
 // Error handler
-app.use((err, req, res) => {
+app.use((err, req, res, _next) => {
 	// Set locals, only providing error in development
 	res.locals.message = err.message;
 	res.locals.error = req.app.get('env') === 'development' ? err : {};
 
 	// Render the error page
 	res.status(err.status || 500);
-	res.render('error');
+	res.json({
+		error: {
+			message: err.message,
+			status: err.status || 500,
+		},
+	});
 });
 
 const port = process.env.PORT || 9000;
